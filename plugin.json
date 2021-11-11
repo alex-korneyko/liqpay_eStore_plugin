@@ -1,0 +1,11 @@
+﻿{
+  "Group": "Privat bank LiqPay payment method",
+  "FriendlyName": "LiqPay",
+  "SystemName": "Payment.LiqPay",
+  "Version": "1.0",
+  "SupportedVersions": [ "4.40" ],
+  "Author": "AlexApps development",
+  "DisplayOrder": 1,
+  "FileName": "AlexApps.Plugin.Payment.LiqPay.dll",
+  "Description": "This plugin offers payments with Privat LiqPay system"
+}

@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net5.0</TargetFramework>
+        <Copyright>Copyright © AlexApps development</Copyright>
+        <Company>AlexApps development</Company>
+        <Authors>AlexApps development</Authors>
+        <PackageLicenseUrl></PackageLicenseUrl>
+        <PackageProjectUrl>https://alexapps.dev/projects/liqpay_eStore_plugin</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/alex-korneyko/liqpay_eStore_plugin</RepositoryUrl>
+        <RepositoryType>Git</RepositoryType>
+        <OutputPath>..\..\Presentation\Nop.Web\Plugins\Payments.LiqPay</OutputPath>
+        <OutDir>$(OutputPath)</OutDir>
+        <!--Set this parameter to true to get the dlls copied from the NuGet cache to the output of your project.
+        You need to set this parameter to true if your plugin has a nuget package to ensure that   
+        the dlls copied from the NuGet cache to the output of your project-->
+        <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+        <RootNamespace>AlexApps.Plugin.Payment.LiqPay</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\Presentation\Nop.Web.Framework\Nop.Web.Framework.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include="plugin.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
+
+
+    <Target Name="NopTarget" AfterTargets="Build">
+        <!-- Delete unnecessary libraries from plugins path -->
+        <MSBuild Projects="@(ClearPluginAssemblies)" Properties="PluginPath=$(MSBuildProjectDirectory)\$(OutDir)" Targets="NopClear" />
+    </Target>
+</Project>
