@@ -2,7 +2,12 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.AspNetCore.Mvc.Routing;
+using Nop.Core;
 using Nop.Core.Domain.Orders;
+using Nop.Core.Domain.Payments;
 using Nop.Services.Payments;
 using Nop.Services.Plugins;
 
@@ -10,82 +15,207 @@ namespace AlexApps.Plugin.Payment.LiqPay
 {
     public class LiqPayPaymentProcessor : BasePlugin, IPaymentMethod
     {
-        public Task<ProcessPaymentResult> ProcessPaymentAsync(ProcessPaymentRequest processPaymentRequest)
+        private readonly IWebHelper _webHelper;
+        private readonly IUrlHelperFactory _urlHelperFactory;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IActionContextAccessor _actionContextAccessor;
+        private readonly IStoreContext _storeContext;
+
+        public LiqPayPaymentProcessor(
+            IWebHelper webHelper,
+            IUrlHelperFactory urlHelperFactory,
+            IHttpContextAccessor httpContextAccessor,
+            IActionContextAccessor actionContextAccessor,
+            IStoreContext storeContext)
         {
-            throw new NotImplementedException();
+            _webHelper = webHelper;
+            _urlHelperFactory = urlHelperFactory;
+            _httpContextAccessor = httpContextAccessor;
+            _actionContextAccessor = actionContextAccessor;
+            _storeContext = storeContext;
         }
 
-        public Task PostProcessPaymentAsync(PostProcessPaymentRequest postProcessPaymentRequest)
+        /// <summary>
+        /// This method is always invoked right before a customer places an order. Use it when you need to process
+        /// a payment before an order is stored into database. For example, capture or authorize credit card.
+        /// Usually this method is used when a customer is not redirected to third-party site for
+        /// completing a payment and all payments are handled on your site (for example, PayPal Direct).
+        /// </summary>
+        /// <param name="processPaymentRequest"></param>
+        /// <returns></returns>
+        public async Task<ProcessPaymentResult> ProcessPaymentAsync(ProcessPaymentRequest processPaymentRequest)
         {
-            throw new NotImplementedException();
+            return new ProcessPaymentResult
+            {
+                NewPaymentStatus = PaymentStatus.Pending
+            };
         }
 
-        public Task<bool> HidePaymentMethodAsync(IList<ShoppingCartItem> cart)
+        /// <summary>
+        /// This method is invoked right after a customer places an order. Usually this method is used when you need
+        /// to redirect a customer to a third-party site for completing a payment (for example, PayPal Standard).
+        /// </summary>
+        /// <param name="postProcessPaymentRequest"></param>
+        /// <returns></returns>
+        public async Task PostProcessPaymentAsync(PostProcessPaymentRequest postProcessPaymentRequest)
         {
-            throw new NotImplementedException();
+            var urlHelper = _urlHelperFactory.GetUrlHelper(_actionContextAccessor.ActionContext);
+            
+            var routeUrl = urlHelper.RouteUrl(
+                "Plugin.AlexApps.Payment.LiqPay.LiqPayGateway",
+                new {orderId = postProcessPaymentRequest.Order.Id},
+                (await _storeContext.GetCurrentStoreAsync()).SslEnabled ? Uri.UriSchemeHttps : Uri.UriSchemeHttp);
+
+            if (_httpContextAccessor.HttpContext != null) 
+                _httpContextAccessor.HttpContext.Response.Redirect(routeUrl);
+            else
+                throw new Exception("Failed getting HttpContext");
         }
 
-        public Task<decimal> GetAdditionalHandlingFeeAsync(IList<ShoppingCartItem> cart)
+        /// <summary>
+        /// You can put any logic here. For example, hide this payment method if all products in the cart
+        /// are downloadable. Or hide this payment method if current customer is from certain country
+        /// </summary>
+        /// <param name="cart"></param>
+        /// <returns></returns>
+        public async Task<bool> HidePaymentMethodAsync(IList<ShoppingCartItem> cart)
         {
-            throw new NotImplementedException();
+            return false;
         }
 
-        public Task<CapturePaymentResult> CaptureAsync(CapturePaymentRequest capturePaymentRequest)
+        /// <summary>
+        /// You can return any additional handling fees which will be added to an order total
+        /// </summary>
+        /// <param name="cart"></param>
+        /// <returns></returns>
+        public async Task<decimal> GetAdditionalHandlingFeeAsync(IList<ShoppingCartItem> cart)
         {
-            throw new NotImplementedException();
+            return 0;
         }
 
-        public Task<RefundPaymentResult> RefundAsync(RefundPaymentRequest refundPaymentRequest)
+        /// <summary>
+        /// Some payment gateways allow you to authorize payments before they're captured. It allows store owners to
+        /// review order details before the payment is actually done. In this case you just authorize a payment
+        /// in ProcessPayment or PostProcessPayment method, and then just capture it.
+        /// In this case a Capture button will be visible on the order details page in admin area.
+        /// Note that an order should be already authorized and SupportCapture property should return true.
+        /// </summary>
+        /// <param name="capturePaymentRequest"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public async Task<CapturePaymentResult> CaptureAsync(CapturePaymentRequest capturePaymentRequest)
         {
-            throw new NotImplementedException();
+            return new CapturePaymentResult { Errors = new[] { "Capture method not supported" } };
         }
 
-        public Task<VoidPaymentResult> VoidAsync(VoidPaymentRequest voidPaymentRequest)
+        /// <summary>
+        /// This method allows you make a refund. In this case a Refund button will be visible on the order details
+        /// page in admin area. Note that an order should be paid, and SupportRefund
+        /// or SupportPartiallyRefund property should return true
+        /// </summary>
+        /// <param name="refundPaymentRequest"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public async Task<RefundPaymentResult> RefundAsync(RefundPaymentRequest refundPaymentRequest)
         {
-            throw new NotImplementedException();
+            return new RefundPaymentResult { Errors = new[] { "Refund method not supported" } };
         }
 
-        public Task<ProcessPaymentResult> ProcessRecurringPaymentAsync(ProcessPaymentRequest processPaymentRequest)
+        /// <summary>
+        /// This method allows you void an authorized but not captured payment.
+        /// In this case a Void button will be visible on the order details page in admin area.
+        /// Note that an order should be authorized and SupportVoid property should return true.
+        /// </summary>
+        /// <param name="voidPaymentRequest"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public async Task<VoidPaymentResult> VoidAsync(VoidPaymentRequest voidPaymentRequest)
         {
-            throw new NotImplementedException();
+            return new VoidPaymentResult { Errors = new[] { "Void method not supported" } };
         }
 
-        public Task<CancelRecurringPaymentResult> CancelRecurringPaymentAsync(CancelRecurringPaymentRequest cancelPaymentRequest)
+        /// <summary>
+        /// Use this method to process recurring payments.
+        /// </summary>
+        /// <param name="processPaymentRequest"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public async Task<ProcessPaymentResult> ProcessRecurringPaymentAsync(ProcessPaymentRequest processPaymentRequest)
         {
-            throw new NotImplementedException();
+            return new ProcessPaymentResult {  Errors = new[] { "Recurring payment not supported" } };
         }
 
-        public Task<bool> CanRePostProcessPaymentAsync(Order order)
+        /// <summary>
+        /// Use this method to cancel recurring payments.
+        /// </summary>
+        /// <param name="cancelPaymentRequest"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public async Task<CancelRecurringPaymentResult> CancelRecurringPaymentAsync(CancelRecurringPaymentRequest cancelPaymentRequest)
         {
-            throw new NotImplementedException();
+            return new CancelRecurringPaymentResult { Errors = new[] { "Recurring payment not supported" } };
         }
 
-        public Task<IList<string>> ValidatePaymentFormAsync(IFormCollection form)
+        /// <summary>
+        /// Usually this method is used when it redirects a customer to a third-party site for completing a payment.
+        /// If the third party payment fails this option will allow customers
+        /// to attempt the order again later without placing a new order.
+        /// CanRePostProcessPayment should return true to enable this feature.
+        /// </summary>
+        /// <param name="order"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public async Task<bool> CanRePostProcessPaymentAsync(Order order)
         {
-            throw new NotImplementedException();
+            return true;
         }
 
-        public Task<ProcessPaymentRequest> GetPaymentInfoAsync(IFormCollection form)
+        /// <summary>
+        /// is used in the public store to validate customer input. It returns a list of warnings
+        /// (for example, a customer did not enter his credit card name). If your payment method does not ask
+        /// the customer to enter additional information, then the ValidatePaymentForm should return an empty list
+        /// </summary>
+        /// <param name="form"></param>
+        /// <returns></returns>
+        public async Task<IList<string>> ValidatePaymentFormAsync(IFormCollection form)
         {
-            throw new NotImplementedException();
+            return new List<string>();
+        }
+
+        /// <summary>
+        /// method is used in the public store to parse customer input, such as credit card information.
+        /// This method returns a ProcessPaymentRequest object with parsed customer input
+        /// (for example, credit card information). If your payment method does not ask the customer
+        /// to enter additional information, then GetPaymentInfo will return an empty ProcessPaymentRequest object
+        /// </summary>
+        /// <param name="form"></param>
+        /// <returns></returns>
+        public async Task<ProcessPaymentRequest> GetPaymentInfoAsync(IFormCollection form)
+        {
+            return new ProcessPaymentRequest();
         }
 
         public string GetPublicViewComponentName()
         {
-            throw new NotImplementedException();
+            return "PaymentLiqPay";
         }
 
-        public Task<string> GetPaymentMethodDescriptionAsync()
+        public async Task<string> GetPaymentMethodDescriptionAsync()
         {
-            throw new NotImplementedException();
+            return "Privart LiqPay payment method description";
         }
 
-        public bool SupportCapture { get; }
-        public bool SupportPartiallyRefund { get; }
-        public bool SupportRefund { get; }
-        public bool SupportVoid { get; }
-        public RecurringPaymentType RecurringPaymentType { get; }
-        public PaymentMethodType PaymentMethodType { get; }
-        public bool SkipPaymentInfo { get; }
+        public override string GetConfigurationPageUrl()
+        {
+            return $"{_webHelper.GetStoreLocation()}Admin/PaymentsLiqPay/Configure";
+        }
+
+        public bool SupportCapture => false;
+        public bool SupportPartiallyRefund => false;
+        public bool SupportRefund => false;
+        public bool SupportVoid => false;
+        public RecurringPaymentType RecurringPaymentType => RecurringPaymentType.NotSupported;
+        public PaymentMethodType PaymentMethodType => PaymentMethodType.Redirection;
+        public bool SkipPaymentInfo => false;
     }
 }

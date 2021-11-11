@@ -1,5 +1,5 @@
 ﻿{
-  "Group": "Privat bank LiqPay payment method",
+  "Group": "Payment methods",
   "FriendlyName": "LiqPay",
   "SystemName": "Payment.LiqPay",
   "Version": "1.0",

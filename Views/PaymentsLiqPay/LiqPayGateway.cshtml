@@ -1,0 +1,22 @@
+﻿@model AlexApps.Plugin.Payment.LiqPay.Models.LiqPayGatewayModel
+@{
+    Layout = "";
+}
+<script>
+    $(function () {
+        $("#liqpaysubmit").submit();
+        console.log("LiqPay gateway page")
+    });
+</script>
+
+<div style="text-align: center;">
+    <div style="margin-top: 2rem; margin-bottom: 2rem; color: rgb(97,144,34)">
+        <h2 >При нажатии кнопки 'Оплатить', Вы будете перенаправлены на страницу платёжной системы LiqPay ПриватБанк</h2>
+        <h3>Там Вы сможете выбрать любой удобный для Вас способ оплаты</h3>
+    </div>
+    <form id="liqpaysubmit" method="POST" action="https://www.liqpay.ua/api/checkout" accept-charset="utf-8">
+        <input type="hidden" name="data" value="@Model.Data"/>
+        <input type="hidden" name="signature" value="@Model.Signature"/>
+        <input type="image" src="//static.liqpay.ua/buttons/p1ru.radius.png"/>
+    </form>
+</div>

@@ -1,0 +1,9 @@
+﻿@using Nop.Core
+@inject IWebHelper _webHelper
+
+@{
+    Layout = $"_ConfigurePlugin";
+    var storeLocation = _webHelper.GetStoreLocation();
+}
+
+<h1>Configure LiqPay</h1>
