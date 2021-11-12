@@ -1,5 +1,4 @@
-﻿using Nop.Core.Domain.Orders;
-using Nop.Web.Framework.Models;
+﻿using Nop.Web.Framework.Models;
 
 namespace AlexApps.Plugin.Payment.LiqPay.Models
 {

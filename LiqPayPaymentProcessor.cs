@@ -225,7 +225,7 @@ namespace AlexApps.Plugin.Payment.LiqPay
             _liqPaySettings.ClientCallbackUrl = storeLocation + "Plugins/PaymentsLiqPay/ClientCallback";
             _liqPaySettings.ServerCallbackUrl = storeLocation + "Plugins/PaymentsLiqPay/ServerCallback";
 
-            await _settingService.SaveSettingAsync(_liqPaySettings);
+            await _settingService.SaveSettingAsync(_liqPaySettings, (await _storeContext.GetCurrentStoreAsync()).Id);
 
             await base.InstallAsync();
         }

@@ -43,19 +43,6 @@
                     </div>
                     <div class="form-group row" >
                         <div class="col-md-3">
-                            <nop-label asp-for="ClientCallbackUrl"/>
-                        </div>
-                        <div class="col-md-9">
-                            <input class="form-control text-box single-line" 
-                                   id="ClientCallbackUrl" 
-                                   name="ClientCallbackUrl"
-                                   type="text"
-                                   readonly="readonly"
-                                   value="@Model.ClientCallbackUrl">
-                        </div>
-                    </div>
-                    <div class="form-group row" >
-                        <div class="col-md-3">
                             <nop-label asp-for="ServerCallbackUrl"/>
                         </div>
                         <div class="col-md-9">
@@ -65,6 +52,19 @@
                                    type="text"
                                    readonly="readonly"
                                    value="@Model.ServerCallbackUrl">
+                        </div>
+                    </div>
+                    <div class="form-group row" >
+                        <div class="col-md-3">
+                            <nop-label asp-for="ClientCallbackUrl"/>
+                        </div>
+                        <div class="col-md-9">
+                            <input class="form-control text-box single-line" 
+                                   id="ClientCallbackUrl" 
+                                   name="ClientCallbackUrl"
+                                   type="text"
+                                   readonly="readonly"
+                                   value="@Model.ClientCallbackUrl">
                         </div>
                     </div>
                 </div>

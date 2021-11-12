@@ -1,4 +1,5 @@
 ﻿using AlexApps.Plugin.Payment.LiqPay.Infrastructure.Router;
+using AlexApps.Plugin.Payment.LiqPay.Services;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.Extensions.DependencyInjection;
 using Nop.Core.Configuration;
@@ -11,6 +12,8 @@ namespace AlexApps.Plugin.Payment.LiqPay.Infrastructure
     {
         public void Register(IServiceCollection services, ITypeFinder typeFinder, AppSettings appSettings)
         {
+            services.AddScoped<ILiqPayCoreService, LiqPayCoreService>();
+            
             services.Configure<RazorViewEngineOptions>(options =>
             {
                 options.ViewLocationExpanders.Add(new ViewLocationExpander());
