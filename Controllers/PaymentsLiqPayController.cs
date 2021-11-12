@@ -20,12 +20,19 @@ namespace AlexApps.Plugin.Payment.LiqPay.Controllers
         {
             var order = await _orderService.GetOrderByIdAsync(orderId);
 
-            var liqPayGatewayModel = new LiqPayGatewayModel
-            {
-                Order = order
-            };
+            var liqPayGatewayModel = new LiqPayGatewayModel();
 
             return View(liqPayGatewayModel);
+        }
+        
+        public async Task ClientCallback()
+        {
+            
+        }
+
+        public async Task ServerCallback(LiqPayGatewayModel liqPayGatewayModel)
+        {
+            
         }
     }
 }

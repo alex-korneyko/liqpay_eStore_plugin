@@ -5,9 +5,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Routing;
+using Microsoft.AspNetCore.Routing;
 using Nop.Core;
 using Nop.Core.Domain.Orders;
 using Nop.Core.Domain.Payments;
+using Nop.Services.Configuration;
 using Nop.Services.Payments;
 using Nop.Services.Plugins;
 
@@ -20,19 +22,25 @@ namespace AlexApps.Plugin.Payment.LiqPay
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IActionContextAccessor _actionContextAccessor;
         private readonly IStoreContext _storeContext;
+        private readonly ISettingService _settingService;
+        private readonly LiqPaySettings _liqPaySettings;
 
         public LiqPayPaymentProcessor(
             IWebHelper webHelper,
             IUrlHelperFactory urlHelperFactory,
             IHttpContextAccessor httpContextAccessor,
             IActionContextAccessor actionContextAccessor,
-            IStoreContext storeContext)
+            IStoreContext storeContext,
+            ISettingService settingService,
+            LiqPaySettings liqPaySettings)
         {
             _webHelper = webHelper;
             _urlHelperFactory = urlHelperFactory;
             _httpContextAccessor = httpContextAccessor;
             _actionContextAccessor = actionContextAccessor;
             _storeContext = storeContext;
+            _settingService = settingService;
+            _liqPaySettings = liqPaySettings;
         }
 
         /// <summary>
@@ -207,7 +215,24 @@ namespace AlexApps.Plugin.Payment.LiqPay
 
         public override string GetConfigurationPageUrl()
         {
-            return $"{_webHelper.GetStoreLocation()}Admin/PaymentsLiqPay/Configure";
+            return $"{_webHelper.GetStoreLocation()}Admin/PaymentsLiqPayConfig/Configure";
+        }
+
+        public override async Task InstallAsync()
+        {
+            var storeLocation = _webHelper.GetStoreLocation();
+            
+            _liqPaySettings.ClientCallbackUrl = storeLocation + "Plugins/PaymentsLiqPay/ClientCallback";
+            _liqPaySettings.ServerCallbackUrl = storeLocation + "Plugins/PaymentsLiqPay/ServerCallback";
+
+            await _settingService.SaveSettingAsync(_liqPaySettings);
+
+            await base.InstallAsync();
+        }
+
+        public override async Task UninstallAsync()
+        {
+            await base.UninstallAsync();
         }
 
         public bool SupportCapture => false;

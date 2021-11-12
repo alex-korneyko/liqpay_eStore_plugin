@@ -1,4 +1,6 @@
-﻿@using Nop.Core
+﻿@model AlexApps.Plugin.Payment.LiqPay.Models.LiqPaySettingsModel
+
+@using Nop.Core
 @inject IWebHelper _webHelper
 
 @{
@@ -6,4 +8,75 @@
     var storeLocation = _webHelper.GetStoreLocation();
 }
 
-<h1>Configure LiqPay</h1>
+<style>
+    .lq-settings-group {
+        border: 1px solid lightgrey; 
+        border-radius: 5px; 
+        padding: 5px; 
+        margin-bottom: 10px;
+        box-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+        background-color: #fff;
+    }
+</style>
+
+<form asp-controller="PaymentsLiqPayConfig" asp-action="Configure" method="post">
+    
+    <div class="cards-group">
+        <div class="card card-default">
+            <div class="card-body">
+                <div class="lq-settings-group">
+                    <div class="form-group row" >
+                        <div class="col-md-3">
+                            <nop-label asp-for="PublicKey"/>
+                        </div>
+                        <div class="col-md-9">
+                            <nop-editor asp-for="PublicKey"/>
+                        </div>
+                    </div>
+                    <div class="form-group row" >
+                        <div class="col-md-3">
+                            <nop-label asp-for="PrivateKey"/>
+                        </div>
+                        <div class="col-md-9">
+                            <nop-editor asp-for="PrivateKey"/>
+                        </div>
+                    </div>
+                    <div class="form-group row" >
+                        <div class="col-md-3">
+                            <nop-label asp-for="ClientCallbackUrl"/>
+                        </div>
+                        <div class="col-md-9">
+                            <input class="form-control text-box single-line" 
+                                   id="ClientCallbackUrl" 
+                                   name="ClientCallbackUrl"
+                                   type="text"
+                                   readonly="readonly"
+                                   value="@Model.ClientCallbackUrl">
+                        </div>
+                    </div>
+                    <div class="form-group row" >
+                        <div class="col-md-3">
+                            <nop-label asp-for="ServerCallbackUrl"/>
+                        </div>
+                        <div class="col-md-9">
+                            <input class="form-control text-box single-line" 
+                                   id="ServerCallbackUrl" 
+                                   name="ServerCallbackUrl"
+                                   type="text"
+                                   readonly="readonly"
+                                   value="@Model.ServerCallbackUrl">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <div class="form-group row">
+                    <div class="col-md-9 offset-md-3">
+                        <button type="submit" name="save" class="btn btn-primary">@T("Admin.Common.Save")</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</form>
