@@ -13,5 +13,10 @@ namespace AlexApps.Plugin.Payment.LiqPay.Domain
         public string order_id { get; set; }
         public string result_url { get; set; }
         public string server_url { get; set; }
+        //One click payment
+        public string customer { get; set; }
+        public string recurringbytoken { get; set; }
+        public string customer_user_id { get; set; }
+        public string card_token;
     }
 }

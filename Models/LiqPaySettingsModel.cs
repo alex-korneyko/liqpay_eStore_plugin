@@ -1,4 +1,5 @@
 ﻿using Nop.Web.Framework.Models;
+using Nop.Web.Framework.Mvc.ModelBinding;
 
 namespace AlexApps.Plugin.Payment.LiqPay.Models
 {
@@ -14,12 +15,19 @@ namespace AlexApps.Plugin.Payment.LiqPay.Models
             PrivateKey = liqPaySettings.PrivateKey;
             ServerCallbackUrl = liqPaySettings.ServerCallbackUrl;
             ClientCallbackUrl = liqPaySettings.ClientCallbackUrl;
+            OneClickPaymentIsAllow = liqPaySettings.OneClickPaymentIsAllow;
         }
 
+        [NopResourceDisplayName("Plugins.AlexApps.Payment.LiqPay.ConfigModel.Fields.PublicKey")]
         public string PublicKey { get; set; }
+        [NopResourceDisplayName("Plugins.AlexApps.Payment.LiqPay.ConfigModel.Fields.PrivateKey")]
         public string PrivateKey { get; set; }
+        [NopResourceDisplayName("Plugins.AlexApps.Payment.LiqPay.ConfigModel.Fields.ServerCallbackUrl")]
         public string ServerCallbackUrl { get; set; }
+        [NopResourceDisplayName("Plugins.AlexApps.Payment.LiqPay.ConfigModel.Fields.ClientCallbackUrl")]
         public string ClientCallbackUrl { get; set; }
+        [NopResourceDisplayName("Plugins.AlexApps.Payment.LiqPay.ConfigModel.Fields.OneClickPaymentIsAllow")]
+        public bool OneClickPaymentIsAllow { get; set; }
 
         public LiqPaySettings BuildLiqPaySettings()
         {
@@ -28,7 +36,8 @@ namespace AlexApps.Plugin.Payment.LiqPay.Models
                 PrivateKey = PrivateKey,
                 PublicKey = PublicKey,
                 ClientCallbackUrl = ClientCallbackUrl,
-                ServerCallbackUrl = ServerCallbackUrl
+                ServerCallbackUrl = ServerCallbackUrl,
+                OneClickPaymentIsAllow = OneClickPaymentIsAllow
             };
         }
     }

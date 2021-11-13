@@ -1,4 +1,5 @@
-﻿@model AlexApps.Plugin.Payment.LiqPay.Models.LiqPayGatewayModel
+﻿@using AlexApps.Plugin.Payment.LiqPay.Infrastructure.Localizer
+@model AlexApps.Plugin.Payment.LiqPay.Models.LiqPayRedirectToGatewayPageModel
 @{
     Layout = "";
 }
@@ -11,12 +12,15 @@
 
 <div style="text-align: center;">
     <div style="margin-top: 2rem; margin-bottom: 2rem; color: rgb(97,144,34)">
-        <h2 >При нажатии кнопки 'Оплатить', Вы будете перенаправлены на страницу платёжной системы LiqPay ПриватБанк</h2>
-        <h3>Там Вы сможете выбрать любой удобный для Вас способ оплаты</h3>
+        <h2>@T(LocalizationResourceNames.WhenButtonPressed)</h2>
+        <h3>@T(LocalizationResourceNames.PaymentsList)</h3>
+
     </div>
     <form id="liqpaysubmit" method="POST" action="https://www.liqpay.ua/api/checkout" accept-charset="utf-8">
-        <input type="hidden" name="data" value="@Model.Data"/>
-        <input type="hidden" name="signature" value="@Model.Signature"/>
+        <input type="hidden" name="data" value="@Model.LiqPayGatewayModel.Data"/>
+        <input type="hidden" name="signature" value="@Model.LiqPayGatewayModel.Signature"/>
         <input type="image" src="//static.liqpay.ua/buttons/p1ru.radius.png"/>
     </form>
+    
+    
 </div>

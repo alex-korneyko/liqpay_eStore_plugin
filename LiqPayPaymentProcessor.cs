@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using AlexApps.Plugin.Payment.LiqPay.Infrastructure.Localizer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
@@ -24,6 +25,7 @@ namespace AlexApps.Plugin.Payment.LiqPay
         private readonly IStoreContext _storeContext;
         private readonly ISettingService _settingService;
         private readonly LiqPaySettings _liqPaySettings;
+        private readonly ILocalizerService _localizerService;
 
         public LiqPayPaymentProcessor(
             IWebHelper webHelper,
@@ -32,7 +34,8 @@ namespace AlexApps.Plugin.Payment.LiqPay
             IActionContextAccessor actionContextAccessor,
             IStoreContext storeContext,
             ISettingService settingService,
-            LiqPaySettings liqPaySettings)
+            LiqPaySettings liqPaySettings,
+            ILocalizerService localizerService)
         {
             _webHelper = webHelper;
             _urlHelperFactory = urlHelperFactory;
@@ -41,6 +44,7 @@ namespace AlexApps.Plugin.Payment.LiqPay
             _storeContext = storeContext;
             _settingService = settingService;
             _liqPaySettings = liqPaySettings;
+            _localizerService = localizerService;
         }
 
         /// <summary>
@@ -227,11 +231,15 @@ namespace AlexApps.Plugin.Payment.LiqPay
 
             await _settingService.SaveSettingAsync(_liqPaySettings, (await _storeContext.GetCurrentStoreAsync()).Id);
 
+            await _localizerService.SetLocaleResources();
+
             await base.InstallAsync();
         }
 
         public override async Task UninstallAsync()
         {
+            await _localizerService.RemoveLocaleResources();
+            
             await base.UninstallAsync();
         }
 

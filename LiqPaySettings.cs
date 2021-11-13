@@ -8,5 +8,6 @@ namespace AlexApps.Plugin.Payment.LiqPay
         public string PrivateKey { get; set; }
         public string ServerCallbackUrl { get; set; }
         public string ClientCallbackUrl { get; set; }
+        public bool OneClickPaymentIsAllow { get; set; }
     }
 }

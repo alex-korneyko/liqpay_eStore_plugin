@@ -1,4 +1,5 @@
-﻿using AlexApps.Plugin.Payment.LiqPay.Infrastructure.Router;
+﻿using AlexApps.Plugin.Payment.LiqPay.Infrastructure.Localizer;
+using AlexApps.Plugin.Payment.LiqPay.Infrastructure.Router;
 using AlexApps.Plugin.Payment.LiqPay.Services;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,8 +13,10 @@ namespace AlexApps.Plugin.Payment.LiqPay.Infrastructure
     {
         public void Register(IServiceCollection services, ITypeFinder typeFinder, AppSettings appSettings)
         {
+            services.AddScoped<ILocalizerService, LocalizerService>();
             services.AddScoped<ILiqPayCoreService, LiqPayCoreService>();
-            
+            services.AddScoped<ICardTokenService, CardTokenService>();
+
             services.Configure<RazorViewEngineOptions>(options =>
             {
                 options.ViewLocationExpanders.Add(new ViewLocationExpander());
