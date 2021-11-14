@@ -16,6 +16,7 @@ namespace AlexApps.Plugin.Payment.LiqPay.Models
             ServerCallbackUrl = liqPaySettings.ServerCallbackUrl;
             ClientCallbackUrl = liqPaySettings.ClientCallbackUrl;
             OneClickPaymentIsAllow = liqPaySettings.OneClickPaymentIsAllow;
+            Sandbox = liqPaySettings.Sandbox;
         }
 
         [NopResourceDisplayName("Plugins.AlexApps.Payment.LiqPay.ConfigModel.Fields.PublicKey")]
@@ -28,6 +29,8 @@ namespace AlexApps.Plugin.Payment.LiqPay.Models
         public string ClientCallbackUrl { get; set; }
         [NopResourceDisplayName("Plugins.AlexApps.Payment.LiqPay.ConfigModel.Fields.OneClickPaymentIsAllow")]
         public bool OneClickPaymentIsAllow { get; set; }
+        [NopResourceDisplayName("Plugins.AlexApps.Payment.LiqPay.ConfigModel.Fields.Sandbox")]
+        public bool Sandbox { get; set; }
 
         public LiqPaySettings BuildLiqPaySettings()
         {
@@ -37,7 +40,8 @@ namespace AlexApps.Plugin.Payment.LiqPay.Models
                 PublicKey = PublicKey,
                 ClientCallbackUrl = ClientCallbackUrl,
                 ServerCallbackUrl = ServerCallbackUrl,
-                OneClickPaymentIsAllow = OneClickPaymentIsAllow
+                OneClickPaymentIsAllow = OneClickPaymentIsAllow,
+                Sandbox = Sandbox
             };
         }
     }

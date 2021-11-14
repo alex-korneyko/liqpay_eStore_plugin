@@ -77,12 +77,13 @@ namespace AlexApps.Plugin.Payment.LiqPay.Services
                 version = 3,
                 public_key = _liqPaySettings.PublicKey,
                 action = "pay",
-                amount = order.OrderTotal,
+                amount = _liqPaySettings.Sandbox ? 1 : order.OrderTotal,
                 order_id = order.Id.ToString(),
                 currency = currency.CurrencyCode,
                 description = $"Payment from customer Id: {order.CustomerId}",
                 server_url = _liqPaySettings.ServerCallbackUrl,
                 result_url = _liqPaySettings.ClientCallbackUrl,
+                sandbox = _liqPaySettings.Sandbox ? "1" : ""
             };
 
             if (customer != null && _liqPaySettings.OneClickPaymentIsAllow)
@@ -133,8 +134,6 @@ namespace AlexApps.Plugin.Payment.LiqPay.Services
 
             var httpClient = new HttpClient();
 
-            var httpResponseMessage = await httpClient.GetAsync("");
-
             var responseMessage = await httpClient.PostAsync("https://www.liqpay.ua/api/request", 
                 new FormUrlEncodedContent(new Dictionary<string, string>
                 {
@@ -148,7 +147,7 @@ namespace AlexApps.Plugin.Payment.LiqPay.Services
             return paymentApiResponse;
         }
 
-        public async Task SetOrderPaidSuccessfulByApiResponse(PaymentApiResponse paymentApiResponse)
+        public async Task SetOrderPaidSuccessfulByApiResponse(PaymentApiResponse paymentApiResponse, bool sandbox = false)
         {
             var orderId = int.Parse(paymentApiResponse.order_id);
             
@@ -159,9 +158,11 @@ namespace AlexApps.Plugin.Payment.LiqPay.Services
             order.OrderStatus = OrderStatus.Processing;
             await _orderService.UpdateOrderAsync(order);
 
+            var message = sandbox ? "Order paid in sandbox. " : "Order successfully paid. ";
+            
             await _orderService.InsertOrderNoteAsync(new OrderNote
             {
-                Note = $"Order successfully paid. " +
+                Note = message +
                        $"Amount: {paymentApiResponse.amount}. " +
                        $"Pay type: {paymentApiResponse.paytype}",
                 OrderId = orderId,

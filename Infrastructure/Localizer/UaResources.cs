@@ -16,6 +16,8 @@ namespace AlexApps.Plugin.Payment.LiqPay.Infrastructure.Localizer
             [LocalizationResourceNames.ClientCallbackUrl + ".hint"] = "Необхідно вписати ці дані в своєму профілі на сайті liqpay.ua",
             [LocalizationResourceNames.OneClickPaymentIsAllow] = "Дозволити клієнтам оплату в один клік",
             [LocalizationResourceNames.OneClickPaymentIsAllow + ".hint"] = "Дає можливість клієнту зберегти платіжні дані в системі LiqPay для подальших оплат в один клік. (Функція в розробці)",
+            [LocalizationResourceNames.Sandbox] = "Режим тестування",
+            [LocalizationResourceNames.Sandbox + ".hint"] = "У режимі тестування всі платежі дорівнюють 1 (UAH, RUR, USD ...) і з картки кошти не списуються",
             
             [LocalizationResourceNames.YouWillBeRedirectedToLiqPay] = "Ви будете перенаправлені на сайт платіжної системи LiqPay",
             [LocalizationResourceNames.WhenButtonPressed] = "При натисканні кнопки 'Оплатити', ви будете перенаправлені " +

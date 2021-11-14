@@ -11,7 +11,7 @@ namespace AlexApps.Plugin.Payment.LiqPay.Services
         Task<PaymentApiRequest> GetPaymentApiRequest(int orderId);
         PaymentApiResponse GetPaymentApiResponse(LiqPayGatewayModel liqPayGatewayModel);
         Task<PaymentApiResponse> RequestStatus(int orderId);
-        Task SetOrderPaidSuccessfulByApiResponse(PaymentApiResponse orderId);
+        Task SetOrderPaidSuccessfulByApiResponse(PaymentApiResponse orderId, bool sandbox = false);
         Task SetOrderPaidFailureByApiResponse(PaymentApiResponse orderId);
     }
 }

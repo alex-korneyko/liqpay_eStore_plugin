@@ -10,7 +10,8 @@ namespace AlexApps.Plugin.Payment.LiqPay.Infrastructure.Localizer
         public static string ServerCallbackUrl => "Plugins.AlexApps.Payment.LiqPay.ConfigModel.Fields.ServerCallbackUrl";
         public static string ClientCallbackUrl => "Plugins.AlexApps.Payment.LiqPay.ConfigModel.Fields.ClientCallbackUrl";
         public static string OneClickPaymentIsAllow => "Plugins.AlexApps.Payment.LiqPay.ConfigModel.Fields.OneClickPaymentIsAllow";
-
+        public static string Sandbox => "Plugins.AlexApps.Payment.LiqPay.ConfigModel.Fields.Sandbox";
+        
         //Messages
         public static string YouWillBeRedirectedToLiqPay =>
             "Plugins.AlexApps.Payment.LiqPay.Messages.YouWillBeRedirectedToLiqPay";

@@ -16,6 +16,9 @@ namespace AlexApps.Plugin.Payment.LiqPay.Infrastructure.Localizer
             [LocalizationResourceNames.ClientCallbackUrl + ".hint"] = "Callback client-server URL",
             [LocalizationResourceNames.OneClickPaymentIsAllow] = "Allow one-click payment",
             [LocalizationResourceNames.OneClickPaymentIsAllow + ".hint"] = "Allow one-click payment",
+            [LocalizationResourceNames.Sandbox] = "Test mode",
+            [LocalizationResourceNames.Sandbox + ".hint"] = "In testing mode, all payments are equal " +
+                                                            "to 1 (UAH, RUR, USD ...) and funds are not debited from the card",
             
             [LocalizationResourceNames.YouWillBeRedirectedToLiqPay] = "You will be redirected to the website of the " +
                                                                       "LiqPay payment system",

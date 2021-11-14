@@ -83,18 +83,18 @@ namespace AlexApps.Plugin.Payment.LiqPay.Controllers
             switch (paymentApiResponse.status)
             {
                 case "error":
-                    var paymentErrorModel = new PaymentErrorModel
-                    {
-                        Description = $"Payment error! Code: {paymentApiResponse.err_code}, " +
-                                      $"Description: {paymentApiResponse.err_description}"
-                    };
+                    var description = $"Payment error! Code: {paymentApiResponse.err_code}, " +
+                                  $"Description: {paymentApiResponse.err_description}";
                     
-                    var logMessage = $"{paymentErrorModel.Description}. Order ID: {paymentApiResponse.order_id}";
+                    var logMessage = $"{description}. Order ID: {paymentApiResponse.order_id}";
                     await _logger.ErrorAsync(logMessage, customer: await _workContext.GetCurrentCustomerAsync());
                     
-                    return RedirectToAction("ErrorResponse", new { paymentErrorModel });
+                    return RedirectToAction("ErrorResponse", new { description });
                 case "success":
                     await _liqPayCoreService.SetOrderPaidSuccessfulByApiResponse(paymentApiResponse);
+                    break;
+                case "sandbox":
+                    await _liqPayCoreService.SetOrderPaidSuccessfulByApiResponse(paymentApiResponse, true);
                     break;
                 case "failure":
                     await _liqPayCoreService.SetOrderPaidFailureByApiResponse(paymentApiResponse);
@@ -118,6 +118,9 @@ namespace AlexApps.Plugin.Payment.LiqPay.Controllers
             {
                 case "success":
                     await _liqPayCoreService.SetOrderPaidSuccessfulByApiResponse(paymentApiResponse);
+                    break;
+                case "sandbox":
+                    await _liqPayCoreService.SetOrderPaidSuccessfulByApiResponse(paymentApiResponse, true);
                     break;
                 case "failure":
                     await _liqPayCoreService.SetOrderPaidFailureByApiResponse(paymentApiResponse);
