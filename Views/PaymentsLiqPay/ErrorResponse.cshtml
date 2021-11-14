@@ -1,11 +1,14 @@
-﻿@{
+﻿@model AlexApps.Plugin.Payment.LiqPay.Models.PaymentErrorModel
+
+@{
     Layout = $"_ColumnsTwo";
 }
 
 <p class="page">
     <div class="page-body">
         <div class="post-body">
-            Something went wrong 
+            <h2>Error occurred</h2>
+            @Model.Description
         </div>
     </div>
 </p>

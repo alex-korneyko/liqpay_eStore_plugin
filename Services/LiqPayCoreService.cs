@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net.Http;
-using System.Net.Http.Json;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -105,7 +104,7 @@ namespace AlexApps.Plugin.Payment.LiqPay.Services
             return paymentApiRequest;
         }
 
-        public async Task<PaymentApiResponse> GetPaymentApiResponse(LiqPayGatewayModel liqPayGatewayModel)
+        public PaymentApiResponse GetPaymentApiResponse(LiqPayGatewayModel liqPayGatewayModel)
         {
             var signature = GetSignature(liqPayGatewayModel.Data);
             if (!liqPayGatewayModel.Signature.Equals(signature))
@@ -133,7 +132,9 @@ namespace AlexApps.Plugin.Payment.LiqPay.Services
             var base64DataString = GetBase64DataString(paymentApiRequest);
 
             var httpClient = new HttpClient();
-            
+
+            var httpResponseMessage = await httpClient.GetAsync("");
+
             var responseMessage = await httpClient.PostAsync("https://www.liqpay.ua/api/request", 
                 new FormUrlEncodedContent(new Dictionary<string, string>
                 {
@@ -147,14 +148,49 @@ namespace AlexApps.Plugin.Payment.LiqPay.Services
             return paymentApiResponse;
         }
 
-        public async Task SetOrderPaidByLiqPayResponse(int orderId)
+        public async Task SetOrderPaidSuccessfulByApiResponse(PaymentApiResponse paymentApiResponse)
         {
+            var orderId = int.Parse(paymentApiResponse.order_id);
+            
             if (orderId == 0) return;
 
             var order = await _orderService.GetOrderByIdAsync(orderId);
             order.PaymentStatus = PaymentStatus.Paid;
             order.OrderStatus = OrderStatus.Processing;
             await _orderService.UpdateOrderAsync(order);
+
+            await _orderService.InsertOrderNoteAsync(new OrderNote
+            {
+                Note = $"Order successfully paid. " +
+                       $"Amount: {paymentApiResponse.amount}. " +
+                       $"Pay type: {paymentApiResponse.paytype}",
+                OrderId = orderId,
+                CreatedOnUtc = DateTime.Now
+            });
+        }
+
+        public async Task SetOrderPaidFailureByApiResponse(PaymentApiResponse paymentApiResponse)
+        {
+            var orderId = int.Parse(paymentApiResponse.order_id);
+            
+            if (orderId == 0) return;
+
+            var order = await _orderService.GetOrderByIdAsync(orderId);
+            order.PaymentStatus = PaymentStatus.Pending;
+            await _orderService.UpdateOrderAsync(order);
+            
+            var orderNote = new OrderNote
+            {
+                Note = $"Payment failed. " +
+                       $"Error code: {paymentApiResponse.err_code}" +
+                       $"Description: {paymentApiResponse.err_description}." +
+                       $"Pay type: {paymentApiResponse.paytype}. " +
+                       $"Amount: {paymentApiResponse.amount}. " +
+                       $"Currency: {paymentApiResponse.currency}",
+                OrderId = orderId,
+                CreatedOnUtc = DateTime.Now
+            };
+            await _orderService.InsertOrderNoteAsync(orderNote);
         }
     }
 }

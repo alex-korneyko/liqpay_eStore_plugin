@@ -23,14 +23,14 @@ namespace AlexApps.Plugin.Payment.LiqPay.Infrastructure.Localizer
             foreach (var language in allLanguagesAsync)
             {
                 var languageName = _languageService.GetTwoLetterIsoLanguageName(language);
-                if (languageName.Equals("ru"))
+                switch (languageName)
                 {
-                    await _localizationService.AddLocaleResourceAsync(RuResources.Resources, language.Id);
-                }
-                
-                if (languageName.Equals("uk"))
-                {
-                    await _localizationService.AddLocaleResourceAsync(UaResources.Resources, language.Id);
+                    case "ru":
+                        await _localizationService.AddLocaleResourceAsync(RuResources.Resources, language.Id);
+                        break;
+                    case "uk":
+                        await _localizationService.AddLocaleResourceAsync(UaResources.Resources, language.Id);
+                        break;
                 }
             }
         }
