@@ -6,10 +6,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Routing;
-using Microsoft.AspNetCore.Routing;
 using Nop.Core;
 using Nop.Core.Domain.Orders;
 using Nop.Core.Domain.Payments;
+using Nop.Services.Common;
 using Nop.Services.Configuration;
 using Nop.Services.Payments;
 using Nop.Services.Plugins;
@@ -26,6 +26,8 @@ namespace AlexApps.Plugin.Payment.LiqPay
         private readonly ISettingService _settingService;
         private readonly LiqPaySettings _liqPaySettings;
         private readonly ILocalizerService _localizerService;
+        private readonly IGenericAttributeService _genericAttributeService;
+        private readonly IWorkContext _workContext;
 
         public LiqPayPaymentProcessor(
             IWebHelper webHelper,
@@ -35,7 +37,9 @@ namespace AlexApps.Plugin.Payment.LiqPay
             IStoreContext storeContext,
             ISettingService settingService,
             LiqPaySettings liqPaySettings,
-            ILocalizerService localizerService)
+            ILocalizerService localizerService,
+            IGenericAttributeService genericAttributeService,
+            IWorkContext workContext)
         {
             _webHelper = webHelper;
             _urlHelperFactory = urlHelperFactory;
@@ -45,6 +49,8 @@ namespace AlexApps.Plugin.Payment.LiqPay
             _settingService = settingService;
             _liqPaySettings = liqPaySettings;
             _localizerService = localizerService;
+            _genericAttributeService = genericAttributeService;
+            _workContext = workContext;
         }
 
         /// <summary>
@@ -57,6 +63,12 @@ namespace AlexApps.Plugin.Payment.LiqPay
         /// <returns></returns>
         public async Task<ProcessPaymentResult> ProcessPaymentAsync(ProcessPaymentRequest processPaymentRequest)
         {
+            await _genericAttributeService.SaveAttributeAsync(
+                await _workContext.GetCurrentCustomerAsync(),
+                LiqPayDefaults.ProcessingOrderGuid,
+                processPaymentRequest.OrderGuid,
+                processPaymentRequest.StoreId);
+            
             return new ProcessPaymentResult
             {
                 NewPaymentStatus = PaymentStatus.Pending
@@ -90,9 +102,9 @@ namespace AlexApps.Plugin.Payment.LiqPay
         /// </summary>
         /// <param name="cart"></param>
         /// <returns></returns>
-        public async Task<bool> HidePaymentMethodAsync(IList<ShoppingCartItem> cart)
+        public Task<bool> HidePaymentMethodAsync(IList<ShoppingCartItem> cart)
         {
-            return false;
+            return Task.FromResult(false);
         }
 
         /// <summary>
@@ -100,9 +112,9 @@ namespace AlexApps.Plugin.Payment.LiqPay
         /// </summary>
         /// <param name="cart"></param>
         /// <returns></returns>
-        public async Task<decimal> GetAdditionalHandlingFeeAsync(IList<ShoppingCartItem> cart)
+        public Task<decimal> GetAdditionalHandlingFeeAsync(IList<ShoppingCartItem> cart)
         {
-            return 0;
+            return Task.FromResult<decimal>(0);
         }
 
         /// <summary>
@@ -115,9 +127,9 @@ namespace AlexApps.Plugin.Payment.LiqPay
         /// <param name="capturePaymentRequest"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public async Task<CapturePaymentResult> CaptureAsync(CapturePaymentRequest capturePaymentRequest)
+        public Task<CapturePaymentResult> CaptureAsync(CapturePaymentRequest capturePaymentRequest)
         {
-            return new CapturePaymentResult { Errors = new[] { "Capture method not supported" } };
+            return Task.FromResult(new CapturePaymentResult { Errors = new[] { "Capture method not supported" } });
         }
 
         /// <summary>
@@ -128,9 +140,9 @@ namespace AlexApps.Plugin.Payment.LiqPay
         /// <param name="refundPaymentRequest"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public async Task<RefundPaymentResult> RefundAsync(RefundPaymentRequest refundPaymentRequest)
+        public Task<RefundPaymentResult> RefundAsync(RefundPaymentRequest refundPaymentRequest)
         {
-            return new RefundPaymentResult { Errors = new[] { "Refund method not supported" } };
+            return Task.FromResult(new RefundPaymentResult { Errors = new[] { "Refund method not supported" } });
         }
 
         /// <summary>
@@ -141,9 +153,9 @@ namespace AlexApps.Plugin.Payment.LiqPay
         /// <param name="voidPaymentRequest"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public async Task<VoidPaymentResult> VoidAsync(VoidPaymentRequest voidPaymentRequest)
+        public Task<VoidPaymentResult> VoidAsync(VoidPaymentRequest voidPaymentRequest)
         {
-            return new VoidPaymentResult { Errors = new[] { "Void method not supported" } };
+            return Task.FromResult(new VoidPaymentResult { Errors = new[] { "Void method not supported" } });
         }
 
         /// <summary>
@@ -152,9 +164,9 @@ namespace AlexApps.Plugin.Payment.LiqPay
         /// <param name="processPaymentRequest"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public async Task<ProcessPaymentResult> ProcessRecurringPaymentAsync(ProcessPaymentRequest processPaymentRequest)
+        public Task<ProcessPaymentResult> ProcessRecurringPaymentAsync(ProcessPaymentRequest processPaymentRequest)
         {
-            return new ProcessPaymentResult {  Errors = new[] { "Recurring payment not supported" } };
+            return Task.FromResult(new ProcessPaymentResult {  Errors = new[] { "Recurring payment not supported" } });
         }
 
         /// <summary>
@@ -163,9 +175,9 @@ namespace AlexApps.Plugin.Payment.LiqPay
         /// <param name="cancelPaymentRequest"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public async Task<CancelRecurringPaymentResult> CancelRecurringPaymentAsync(CancelRecurringPaymentRequest cancelPaymentRequest)
+        public Task<CancelRecurringPaymentResult> CancelRecurringPaymentAsync(CancelRecurringPaymentRequest cancelPaymentRequest)
         {
-            return new CancelRecurringPaymentResult { Errors = new[] { "Recurring payment not supported" } };
+            return Task.FromResult(new CancelRecurringPaymentResult { Errors = new[] { "Recurring payment not supported" } });
         }
 
         /// <summary>
@@ -177,9 +189,9 @@ namespace AlexApps.Plugin.Payment.LiqPay
         /// <param name="order"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public async Task<bool> CanRePostProcessPaymentAsync(Order order)
+        public Task<bool> CanRePostProcessPaymentAsync(Order order)
         {
-            return true;
+            return Task.FromResult(true);
         }
 
         /// <summary>
@@ -189,9 +201,9 @@ namespace AlexApps.Plugin.Payment.LiqPay
         /// </summary>
         /// <param name="form"></param>
         /// <returns></returns>
-        public async Task<IList<string>> ValidatePaymentFormAsync(IFormCollection form)
+        public Task<IList<string>> ValidatePaymentFormAsync(IFormCollection form)
         {
-            return new List<string>();
+            return Task.FromResult<IList<string>>(new List<string>());
         }
 
         /// <summary>
@@ -202,9 +214,9 @@ namespace AlexApps.Plugin.Payment.LiqPay
         /// </summary>
         /// <param name="form"></param>
         /// <returns></returns>
-        public async Task<ProcessPaymentRequest> GetPaymentInfoAsync(IFormCollection form)
+        public Task<ProcessPaymentRequest> GetPaymentInfoAsync(IFormCollection form)
         {
-            return new ProcessPaymentRequest();
+            return Task.FromResult(new ProcessPaymentRequest());
         }
 
         public string GetPublicViewComponentName()
@@ -212,9 +224,9 @@ namespace AlexApps.Plugin.Payment.LiqPay
             return "PaymentLiqPay";
         }
 
-        public async Task<string> GetPaymentMethodDescriptionAsync()
+        public Task<string> GetPaymentMethodDescriptionAsync()
         {
-            return "Privart LiqPay payment method description";
+            return Task.FromResult("Privart LiqPay payment method description");
         }
 
         public override string GetConfigurationPageUrl()

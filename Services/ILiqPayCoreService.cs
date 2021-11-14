@@ -11,5 +11,7 @@ namespace AlexApps.Plugin.Payment.LiqPay.Services
         string GetBase64DataString(PaymentApiRequest paymentApiRequest);
         Task<PaymentApiRequest> GetPaymentApiRequest(int orderId);
         Task<PaymentApiResponse> GetPaymentApiResponse(LiqPayGatewayModel liqPayGatewayModel);
+        Task<PaymentApiResponse> RequestStatus(int orderId);
+        Task SetOrderPaidByLiqPayResponse(int orderId);
     }
 }

@@ -5,22 +5,25 @@
 }
 <script>
     $(function () {
-        $("#liqpaysubmit").submit();
-        console.log("LiqPay gateway page")
+        $("#liqpaysubmit").submit(() => {
+            
+        });
     });
 </script>
 
 <div style="text-align: center;">
+    
     <div style="margin-top: 2rem; margin-bottom: 2rem; color: rgb(97,144,34)">
         <h2>@T(LocalizationResourceNames.WhenButtonPressed)</h2>
         <h3>@T(LocalizationResourceNames.PaymentsList)</h3>
-
     </div>
-    <form id="liqpaysubmit" method="POST" action="https://www.liqpay.ua/api/checkout" accept-charset="utf-8">
+
+    <form id="liqpaysubmit" method="POST" action="https://www.liqpay.ua/api/3/checkout" accept-charset="utf-8">
         <input type="hidden" name="data" value="@Model.LiqPayGatewayModel.Data"/>
         <input type="hidden" name="signature" value="@Model.LiqPayGatewayModel.Signature"/>
         <input type="image" src="//static.liqpay.ua/buttons/p1ru.radius.png"/>
     </form>
-    
-    
+
+
+
 </div>

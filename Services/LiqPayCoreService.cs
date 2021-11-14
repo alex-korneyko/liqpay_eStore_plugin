@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Net.Http;
+using System.Net.Http.Json;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -6,6 +9,9 @@ using System.Threading.Tasks;
 using AlexApps.Plugin.Payment.LiqPay.Domain;
 using AlexApps.Plugin.Payment.LiqPay.Exceptions;
 using AlexApps.Plugin.Payment.LiqPay.Models;
+using Nop.Core.Domain.Orders;
+using Nop.Core.Domain.Payments;
+using Nop.Services.Customers;
 using Nop.Services.Directory;
 using Nop.Services.Orders;
 
@@ -16,15 +22,21 @@ namespace AlexApps.Plugin.Payment.LiqPay.Services
         private readonly IOrderService _orderService;
         private readonly ICurrencyService _currencyService;
         private readonly LiqPaySettings _liqPaySettings;
+        private readonly ICustomerService _customerService;
+        private readonly ICardTokenService _cardTokenService;
 
         public LiqPayCoreService(
             IOrderService orderService,
             ICurrencyService currencyService,
-            LiqPaySettings liqPaySettings)
+            LiqPaySettings liqPaySettings,
+            ICustomerService customerService,
+            ICardTokenService cardTokenService)
         {
             _orderService = orderService;
             _currencyService = currencyService;
             _liqPaySettings = liqPaySettings;
+            _customerService = customerService;
+            _cardTokenService = cardTokenService;
         }
 
         public string GetSignature(string base64DataString)
@@ -57,6 +69,8 @@ namespace AlexApps.Plugin.Payment.LiqPay.Services
             if (order == null)
                 throw new EntityNotFoundException($"Order with Id: {orderId} not found");
 
+            var customer = await _customerService.GetCustomerByIdAsync(order.CustomerId);
+
             var currency = await _currencyService.GetCurrencyByCodeAsync(order.CustomerCurrencyCode);
 
             var paymentApiRequest = new PaymentApiRequest
@@ -69,8 +83,24 @@ namespace AlexApps.Plugin.Payment.LiqPay.Services
                 currency = currency.CurrencyCode,
                 description = $"Payment from customer Id: {order.CustomerId}",
                 server_url = _liqPaySettings.ServerCallbackUrl,
-                result_url = _liqPaySettings.ClientCallbackUrl
+                result_url = _liqPaySettings.ClientCallbackUrl,
             };
+
+            if (customer != null && _liqPaySettings.OneClickPaymentIsAllow)
+            {
+                paymentApiRequest.customer = customer.CustomerGuid.ToString();
+                paymentApiRequest.currency = "1";
+                paymentApiRequest.customer_user_id = customer.Id.ToString();
+                
+                var customerCardToken = await _cardTokenService.GetCardTokenByCustomerId(customer.Id);
+                if (customerCardToken != null && !string.IsNullOrEmpty(customerCardToken.CardToken))
+                {
+                    paymentApiRequest.action = "paytoken";
+                    paymentApiRequest.ip = customer.LastIpAddress;
+                    paymentApiRequest.card_token = customerCardToken.CardToken;
+                    paymentApiRequest.currency = "";
+                }
+            }
 
             return paymentApiRequest;
         }
@@ -88,6 +118,43 @@ namespace AlexApps.Plugin.Payment.LiqPay.Services
             var paymentApiResponse = JsonSerializer.Deserialize<PaymentApiResponse>(responseJsonString);
 
             return paymentApiResponse;
+        }
+
+        public async Task<PaymentApiResponse> RequestStatus(int orderId)
+        {
+            var paymentApiRequest = new PaymentApiRequest
+            {
+                version = 3,
+                public_key = _liqPaySettings.PublicKey,
+                action = "status",
+                order_id = orderId.ToString()
+            };
+
+            var base64DataString = GetBase64DataString(paymentApiRequest);
+
+            var httpClient = new HttpClient();
+            
+            var responseMessage = await httpClient.PostAsync("https://www.liqpay.ua/api/request", 
+                new FormUrlEncodedContent(new Dictionary<string, string>
+                {
+                    ["data"] = base64DataString,
+                    ["signature"] = GetSignature(base64DataString)
+                }));
+            
+            var responseString = await responseMessage.Content.ReadAsStringAsync();
+            var paymentApiResponse = JsonSerializer.Deserialize<PaymentApiResponse>(responseString);
+
+            return paymentApiResponse;
+        }
+
+        public async Task SetOrderPaidByLiqPayResponse(int orderId)
+        {
+            if (orderId == 0) return;
+
+            var order = await _orderService.GetOrderByIdAsync(orderId);
+            order.PaymentStatus = PaymentStatus.Paid;
+            order.OrderStatus = OrderStatus.Processing;
+            await _orderService.UpdateOrderAsync(order);
         }
     }
 }

@@ -18,5 +18,6 @@ namespace AlexApps.Plugin.Payment.LiqPay.Domain
         public string recurringbytoken { get; set; }
         public string customer_user_id { get; set; }
         public string card_token;
+        public string ip;
     }
 }
