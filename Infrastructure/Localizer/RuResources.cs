@@ -25,7 +25,8 @@ namespace AlexApps.Plugin.Payment.LiqPay.Infrastructure.Localizer
             [LocalizationResourceNames.YouWillBeRedirectedToLiqPay] = "Вы будете перенаправлены на сайт платёжной системы LiqPay",
             [LocalizationResourceNames.WhenButtonPressed] = "При нажатии кнопки 'Оплатить', Вы будете перенаправлены " +
                                                             "на страницу платёжной системы LiqPay ПриватБанк",
-            [LocalizationResourceNames.PaymentsList] = "Вам на выбор будет предоставлено несколько способов оплаты"
+            [LocalizationResourceNames.PaymentsList] = "Вам на выбор будет предоставлено несколько способов оплаты",
+            [LocalizationResourceNames.PaymentDescription] = "Оплата через процессинговый сервис LiqPay ПриватБанк",
         };
     }
 }

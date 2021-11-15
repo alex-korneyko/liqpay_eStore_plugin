@@ -18,6 +18,7 @@ namespace AlexApps.Plugin.Payment.LiqPay.Infrastructure.Localizer
 
         public static string WhenButtonPressed => "Plugins.AlexApps.Payment.LiqPay.Messages.WhenButtonPressed";
         public static string PaymentsList => "Plugins.AlexApps.Payment.LiqPay.Messages.PaymentsList";
+        public static string PaymentDescription => "Plugins.AlexApps.Payment.LiqPay.Messages.PaymentDescription";
         
         public static IList<string> GetValues()
         {

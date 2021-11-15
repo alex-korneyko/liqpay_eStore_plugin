@@ -11,6 +11,7 @@ using Nop.Core.Domain.Orders;
 using Nop.Core.Domain.Payments;
 using Nop.Services.Common;
 using Nop.Services.Configuration;
+using Nop.Services.Localization;
 using Nop.Services.Payments;
 using Nop.Services.Plugins;
 
@@ -28,6 +29,7 @@ namespace AlexApps.Plugin.Payment.LiqPay
         private readonly ILocalizerService _localizerService;
         private readonly IGenericAttributeService _genericAttributeService;
         private readonly IWorkContext _workContext;
+        private readonly ILocalizationService _localizationService;
 
         public LiqPayPaymentProcessor(
             IWebHelper webHelper,
@@ -39,7 +41,8 @@ namespace AlexApps.Plugin.Payment.LiqPay
             LiqPaySettings liqPaySettings,
             ILocalizerService localizerService,
             IGenericAttributeService genericAttributeService,
-            IWorkContext workContext)
+            IWorkContext workContext,
+            ILocalizationService localizationService)
         {
             _webHelper = webHelper;
             _urlHelperFactory = urlHelperFactory;
@@ -51,6 +54,7 @@ namespace AlexApps.Plugin.Payment.LiqPay
             _localizerService = localizerService;
             _genericAttributeService = genericAttributeService;
             _workContext = workContext;
+            _localizationService = localizationService;
         }
 
         /// <summary>
@@ -224,9 +228,9 @@ namespace AlexApps.Plugin.Payment.LiqPay
             return "PaymentLiqPay";
         }
 
-        public Task<string> GetPaymentMethodDescriptionAsync()
+        public async Task<string> GetPaymentMethodDescriptionAsync()
         {
-            return Task.FromResult("Privart LiqPay payment method description");
+            return await _localizationService.GetResourceAsync(LocalizationResourceNames.PaymentDescription);
         }
 
         public override string GetConfigurationPageUrl()

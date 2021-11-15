@@ -24,7 +24,8 @@ namespace AlexApps.Plugin.Payment.LiqPay.Infrastructure.Localizer
                                                                       "LiqPay payment system",
             [LocalizationResourceNames.WhenButtonPressed] = "When you click the 'Pay' button, you will be redirected " +
                                                             "to the page of the LiqPay PrivatBank payment system",
-            [LocalizationResourceNames.PaymentsList] = "You will be given several payment methods to choose from"
+            [LocalizationResourceNames.PaymentsList] = "You will be given several payment methods to choose from",
+            [LocalizationResourceNames.PaymentDescription] = "Payment using a processing service LiqPay PrivatBank",
         };
     }
 }
